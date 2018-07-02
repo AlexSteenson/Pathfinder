@@ -56,7 +56,7 @@ def breadth_first_search_2(graph, start, end):
 # breadth_first_search_1(example_graph, 'C')
 
 g = SquareGrid(30, 15)
-#g.walls = DIAGRAM1_WALLS
+g.walls = [(9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 3)]
 
 parents = breadth_first_search_2(g, (8, 7), (25, 11))
 # Visited, Start, End

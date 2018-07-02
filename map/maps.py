@@ -35,7 +35,9 @@ class SquareGrid:
             for x in range(self.width):
                 draw_node = (x, y)
 
-                if draw_node == current:
+                if draw_node in self.walls:
+                    sys.stdout.write(" # ")
+                elif draw_node == current:
                     sys.stdout.write(" C ")
                 elif draw_node == start:
                     sys.stdout.write(" S ")
