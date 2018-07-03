@@ -30,6 +30,17 @@ class SquareGrid:
         results = filter(self.passable, results)
         return results
 
+    @staticmethod
+    def reconstruct_path(came_from, start, goal):
+        current = goal
+        path = []
+        while current != start:
+            path.append(current)
+            current = came_from[current]
+        path.append(start)
+        path.reverse()
+        return path
+
     def draw_grid(self, current, visited, start, end):
         for y in range(self.height):
             for x in range(self.width):

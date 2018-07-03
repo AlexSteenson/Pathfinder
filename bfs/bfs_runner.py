@@ -2,26 +2,7 @@ from map import *
 from node_queue import *
 
 
-def breadth_first_search_1(graph, start):
-    # print out what we find
-    unexplored = Queue()
-    unexplored.put(start)
-    explored = {}
-    explored[start] = True
-
-    # While there are still unexplored nodes
-    while not unexplored.empty():
-        # Get the next unexplored node
-        current = unexplored.get()
-        print("Visiting %r" % current)
-        for next_node in graph.neighbors(current):
-            # If the neighbour is unexplored, explore it
-            if next_node not in explored:
-                unexplored.put(next_node)
-                explored[next_node] = True
-
-
-def breadth_first_search_2(graph, start, end):
+def breadth_first_search(graph, start, end):
     # return "explored"
     unexplored = Queue()
     unexplored.put(start)
@@ -31,33 +12,24 @@ def breadth_first_search_2(graph, start, end):
     while not unexplored.empty():
         current = unexplored.get()
         if current == end:
-            return explored
+            break
+
         for next_node in graph.neighbors(current):
             if next_node not in explored:
                 unexplored.put(next_node)
                 explored[next_node] = current
+
         g.draw_grid(current, explored, start, end)
         sys.stdout.write("\n")
 
     return explored
 
 
-# # Create a sample graph
-# example_graph = SimpleGraph()
-# example_graph.edges = {
-#     'A': ['B'],
-#     'B': ['A', 'C', 'D'],
-#     'C': ['A'],
-#     'D': ['E', 'A'],
-#     'E': ['B', 'F'],
-#     'F': []
-# }
-#
-# breadth_first_search_1(example_graph, 'C')
-
 g = SquareGrid(30, 15)
-g.walls = [(9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 3)]
-
-parents = breadth_first_search_2(g, (8, 7), (25, 11))
+g.walls = [(9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 14), (9, 13), (9, 3)]
+begin = (8, 7)
+goal = (25, 11)
+parents = breadth_first_search(g, begin, goal)
+path = g.reconstruct_path(parents, begin, goal)
 # Visited, Start, End
-g.draw_grid((-1, -1), parents, (8, 7), (25, 11))
+g.draw_grid((-1, -1), path, (8, 7), (25, 11))
