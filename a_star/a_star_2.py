@@ -25,13 +25,17 @@ def a_star(graph, start, end):
             break
 
         for next_node in graph.neighbors(current):
-            cost[next_node] = cost[current] + 1
-            next_f = cost[next_node] + calculate_manhattan_distance(next_node, end)
-            current_f = cost[current] + calculate_manhattan_distance(current, end)
 
-            if next_node not in explored or next_f < current_f:
-                unexplored.put((calculate_manhattan_distance(next_node, end), next_node))
+            tentative_gScore = cost[current] + 1
+            if next_node not in cost:
+                cost[next_node] = sys.maxsize
+
+            if next_node not in explored:
                 explored[next_node] = current
+
+            if cost[next_node] > tentative_gScore:
+                cost[next_node] = tentative_gScore
+                unexplored.put((calculate_manhattan_distance(next_node, end) + tentative_gScore, next_node))
 
         g.draw_grid(current, explored, start, end)
         sys.stdout.write("\n")
@@ -39,10 +43,10 @@ def a_star(graph, start, end):
 
 
 g = SquareGrid(20, 17)
-g.walls = [(9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 14), (9, 13), (9, 3), (9, 2), (9, 1), (9, 15)]
+g.walls = [(9, 16), (9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 14), (9, 13), (9, 3), (9, 2), (9, 1), (9, 15)]
 #g.walls = [(9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 14), (9, 13), (9, 3), (8, 3), (7, 3), (6, 3), (5, 3), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7), (4, 8), (24, 12), (24, 11), (24, 10), (25, 10), (25, 12), (7, 5), (7, 6), (7, 7), (7, 8), (7, 9), (7, 10), (8, 10)]
 begin = (0, 8)
-goal = (19, 8)
+goal = (11, 16)
 parents = a_star(g, begin, goal)
 path = g.reconstruct_path(parents, begin, goal)
 # Visited, Start, End
