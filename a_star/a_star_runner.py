@@ -1,105 +1,47 @@
-from __future__ import print_function
-import matplotlib.pyplot as plt
+from map import *
+import Queue as Q
 
 
-class AStarGraph(object):
-    # Define a class board like grid with two barriers
-
-    def __init__(self):
-        self.barriers = []
-        self.barriers.append(
-            [(2, 4), (2, 5), (2, 6), (3, 6), (4, 6), (5, 6), (5, 5), (5, 4), (5, 3), (5, 2), (4, 2), (3, 2)])
-
-    def heuristic(self, start, goal):
-        # Use Chebyshev distance heuristic if we can move one square either
-        # adjacent or diagonal
-        D = 1
-        D2 = 1
-        dx = abs(start[0] - goal[0])
-        dy = abs(start[1] - goal[1])
-        return D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
-
-    def get_vertex_neighbours(self, pos):
-        n = []
-        # Moves allow link a chess king
-        for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
-            x2 = pos[0] + dx
-            y2 = pos[1] + dy
-            if x2 < 0 or x2 > 7 or y2 < 0 or y2 > 7:
-                continue
-            n.append((x2, y2))
-        return n
-
-    def move_cost(self, a, b):
-        for barrier in self.barriers:
-            if b in barrier:
-                return 100  # Extremely high cost to enter barrier squares
-        return 1  # Normal movement cost
+def calculate_manhattan_distance(start, end):
+    (start_x, start_y) = start
+    (end_x, end_y) = end
+    return abs(start_x - end_x) + abs(start_y - end_y)
 
 
-def AStarSearch(start, end, graph):
-    G = {}  # Actual movement cost to each position from the start position
-    F = {}  # Estimated movement cost of start to end going via this position
+def a_star_search(graph, start, end):
+    unexplored = Q.PriorityQueue()
+    unexplored.put((calculate_manhattan_distance(start, end), start))
+    found = {start: None}
+    cost = {start: 0}
 
-    # Initialize starting values
-    G[start] = 0
-    F[start] = graph.heuristic(start, end)
+    while not unexplored.empty():
+        current = unexplored.get()
+        current = current[1]
 
-    closedVertices = set()
-    openVertices = set([start])
-    cameFrom = {}
-
-    while len(openVertices) > 0:
-        # Get the vertex in the open list with the lowest F score
-        current = None
-        currentFscore = None
-        for pos in openVertices:
-            if current is None or F[pos] < currentFscore:
-                currentFscore = F[pos]
-                current = pos
-
-        # Check if we have reached the goal
         if current == end:
-            # Retrace our route backward
-            path = [current]
-            while current in cameFrom:
-                current = cameFrom[current]
-                path.append(current)
-            path.reverse()
-            return path, F[end]  # Done!
+            break
 
-        # Mark the current vertex as closed
-        openVertices.remove(current)
-        closedVertices.add(current)
+        for next_node in graph.neighbors(current):
 
-        # Update scores for vertices near the current position
-        for neighbour in graph.get_vertex_neighbours(current):
-            if neighbour in closedVertices:
-                continue  # We have already processed this node exhaustively
-            candidateG = G[current] + graph.move_cost(current, neighbour)
+            tentative_gScore = cost[current] + 1
+            if next_node not in found:
+                cost[next_node] = sys.maxsize
+                found[next_node] = current
 
-            if neighbour not in openVertices:
-                openVertices.add(neighbour)  # Discovered a new vertex
-            elif candidateG >= G[neighbour]:
-                continue  # This G score is worse than previously found
+            if cost[next_node] > tentative_gScore:
+                cost[next_node] = tentative_gScore
+                unexplored.put((calculate_manhattan_distance(next_node, end) + tentative_gScore, next_node))
 
-            # Adopt this G score
-            cameFrom[neighbour] = current
-            G[neighbour] = candidateG
-            H = graph.heuristic(neighbour, end)
-            F[neighbour] = G[neighbour] + H
-
-    raise RuntimeError("A* failed to find a solution")
+        g.draw_grid(current, found, start, end)
+        print('\n')
+    return found
 
 
-if __name__ == "__main__":
-    graph = AStarGraph()
-    result, cost = AStarSearch((0, 0), (14, 7), graph)
-    print("route", result)
-    print("cost", cost)
-    plt.plot([v[0] for v in result], [v[1] for v in result])
-    for barrier in graph.barriers:
-        plt.plot([v[0] for v in barrier], [v[1] for v in barrier])
-    plt.xlim(-1, 15)
-    plt.ylim(-1, 8)
-    plt.show()
+g = SquareGrid(30, 17)
+#g.walls = [(9, 16), (9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 14), (9, 13), (9, 3), (9, 2), (9, 1), (9, 15)]
+g.walls = [(9, 4), (9, 5), (9, 6), (9, 7), (9, 8), (9, 9), (9, 10), (9, 11), (9, 12), (9, 14), (9, 13), (9, 3), (8, 3), (7, 3), (6, 3), (5, 3), (4, 3), (4, 4), (4, 5), (4, 6), (4, 7), (4, 8), (24, 12), (24, 11), (24, 10), (25, 10), (25, 12), (7, 5), (7, 6), (7, 7), (7, 8), (7, 9), (7, 10), (8, 10)]
+begin = (0, 8)
+goal = (25, 11)
+parents = a_star_search(g, begin, goal)
+path = g.reconstruct_path(parents, begin, goal)
+g.draw_grid((-1, -1), path, begin, goal)

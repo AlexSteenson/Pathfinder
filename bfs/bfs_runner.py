@@ -1,28 +1,32 @@
 from map import *
-from node_queue import *
+import Queue as Q
 
 
 def breadth_first_search(graph, start, end):
-    # return "explored"
-    unexplored = Queue()
+    unexplored = Q.Queue()
     unexplored.put(start)
-    explored = {}
-    explored[start] = None
+    found = {start: None}
 
+    # While there are nodes still to be evaluated
     while not unexplored.empty():
+        # Get the next node
         current = unexplored.get()
+        # If the goal has been found stop
         if current == end:
             break
 
+        # Get the neighbours of the current node
         for next_node in graph.neighbors(current):
-            if next_node not in explored:
+            # If not yet found, add to the unexplored queue
+            if next_node not in found:
                 unexplored.put(next_node)
-                explored[next_node] = current
+                found[next_node] = current
 
-        g.draw_grid(current, explored, start, end)
+        # Printing code
+        g.draw_grid(current, found, start, end)
         sys.stdout.write("\n")
 
-    return explored
+    return found
 
 
 g = SquareGrid(30, 15)

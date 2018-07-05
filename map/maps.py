@@ -1,14 +1,6 @@
 import sys
 
 
-class SimpleGraph:
-    def __init__(self):
-        self.edges = {}
-
-    def neighbors(self, node_id):
-        return self.edges[node_id]
-
-
 class SquareGrid:
     def __init__(self, width, height):
         self.width = width
@@ -25,7 +17,9 @@ class SquareGrid:
     def neighbors(self, node_id):
         (x, y) = node_id
         results = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1)]
-        if (x + y) % 2 == 0: results.reverse()  # aesthetics
+        if (x + y) % 2 == 0:
+            results.reverse()  # aesthetics
+
         results = filter(self.in_bounds, results)
         results = filter(self.passable, results)
         return results
